@@ -337,6 +337,50 @@
             document.getElementById('syncText').textContent = 'Offline';
         }
 
+        // ==================== REAL QR CODE GENERATOR ====================
+        function generateQRCodeDataURL(ref, name, ticket, phone) {
+            return new Promise((resolve) => {
+                const container = document.createElement('div');
+                container.style.display = 'none';
+                document.body.appendChild(container);
+                
+                const qrData = JSON.stringify({
+                    ref: ref,
+                    name: name,
+                    ticket: ticket,
+                    phone: phone || '',
+                    event: 'CHINGENDE',
+                    date: '2026-10-10'
+                });
+                
+                try {
+                    const qr = new QRCode(container, {
+                        text: qrData,
+                        width: 200,
+                        height: 200,
+                        colorDark: '#059669',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+                    
+                    setTimeout(() => {
+                        const qrCanvas = container.querySelector('canvas');
+                        if (qrCanvas) {
+                            const dataURL = qrCanvas.toDataURL('image/png');
+                            document.body.removeChild(container);
+                            resolve(dataURL);
+                        } else {
+                            document.body.removeChild(container);
+                            resolve(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}&color=059669&bgcolor=ffffff&margin=10`);
+                        }
+                    }, 500);
+                } catch(e) {
+                    document.body.removeChild(container);
+                    resolve(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}&color=059669&bgcolor=ffffff&margin=10`);
+                }
+            });
+        }
+
         // ==================== LOAD DATA FROM SUPABASE ====================
         async function loadData() {
             try {
@@ -454,7 +498,6 @@
                     </tr>
                 `).join('');
             
-            // Re-attach event listeners
             document.querySelectorAll('#bookingsTableBody .btn-act').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const ref = this.getAttribute('data-ref');
@@ -465,7 +508,7 @@
             });
         }
 
-        // ==================== GATE ENTRY - SAVES TO SUPABASE ====================
+        // ==================== GATE ENTRY ====================
         document.getElementById('gateInput').addEventListener('input', function() {
             const input = this.value.trim();
             if (input.length < 4) return;
@@ -480,7 +523,6 @@
             }, 300);
         });
 
-        // Camera scan
         document.getElementById('gateCameraBtn').addEventListener('click', async function() {
             document.getElementById('gateCameraContainer').style.display = 'block';
             try {
@@ -548,7 +590,6 @@
             if (gateScanning) requestAnimationFrame(gateScanLoop);
         }
 
-        // Upload QR
         document.getElementById('gateUploadBtn').addEventListener('click', () => {
             document.getElementById('gateFileInput').click();
         });
@@ -596,11 +637,9 @@
             this.value = '';
         });
 
-        // ==================== AUTO PROCESS GATE ENTRY ====================
         async function autoProcessEntry(booking) {
             console.log('🔍 Processing gate entry for:', booking.ref);
             
-            // Already inside
             if (booking.gate_entered) {
                 showGateResult('warn', 
                     `<strong>${booking.name}</strong><br>
@@ -614,7 +653,6 @@
                 return;
             }
             
-            // Cancelled
             if (booking.status === 'cancelled') {
                 showGateResult('deny', 
                     `<strong>${booking.name}</strong><br>
@@ -628,7 +666,6 @@
 
             const now = new Date().toISOString();
             
-            // SAVE TO SUPABASE
             try {
                 console.log('💾 Saving gate entry to Supabase...');
                 
@@ -643,7 +680,7 @@
                     .select();
                 
                 if (error) {
-                    console.error('❌ Supabase update error:', error.message, error.details, error.hint);
+                    console.error('❌ Supabase update error:', error.message);
                     throw error;
                 }
                 
@@ -653,18 +690,13 @@
             } catch(err) {
                 setOffline();
                 console.error('❌ Supabase save failed:', err.message);
-                // Continue with local update even if Supabase fails
             }
 
-            // Update local state
             booking.gate_entered = true;
             booking.gate_time = now;
             booking.status = 'entered';
-            
-            // Save to localStorage as backup
             localStorage.setItem('chingende_bookings', JSON.stringify(bookings));
 
-            // Show success
             showGateResult('allow', 
                 `<strong>${booking.name}</strong><br>
                 ${booking.ticket} x${booking.qty}<br>
@@ -720,7 +752,6 @@
             }
         }
 
-        // ==================== RESET GATE ENTRY ====================
         async function resetGate(ref) {
             if (!confirm('Reset gate entry for ' + ref + '?\nMoves them back outside.')) return;
             
@@ -753,7 +784,6 @@
                 console.error('❌ Reset failed:', err.message);
             }
             
-            // Update local state
             booking.gate_entered = false;
             booking.gate_time = null;
             booking.status = 'confirmed';
@@ -782,7 +812,6 @@
             
             console.log('➕ Adding new booking:', ref);
             
-            // Save to Supabase
             try {
                 const { data, error } = await supabase
                     .from('bookings')
@@ -797,7 +826,7 @@
                         total_amount: total,
                         status: status,
                         gate_entered: false,
-                        email_sent: false,
+                        email_sent: null,
                         created_at: new Date().toISOString()
                     }])
                     .select();
@@ -815,7 +844,6 @@
                 console.error('❌ Save failed:', err.message);
             }
             
-            // Add to local array
             const newBooking = {
                 ref, name, phone, email, ticket, qty, price, total, status,
                 gate_entered: false, gate_time: null, email_sent: false,
@@ -825,66 +853,94 @@
             bookings.unshift(newBooking);
             localStorage.setItem('chingende_bookings', JSON.stringify(bookings));
             
-            // Send email
+            // Generate REAL QR code and send email
             try {
-                await emailjs.send('service_rqxvm4u', 'template_t85ouum', {
-                    to_name: name,
-                    to_email: email,
-                    reference: ref,
-                    phone: phone,
-                    ticket_type: ticket,
-                    quantity: qty.toString(),
-                    total: total.toLocaleString(),
-                    qr_code: generateQRUrl(ref, name, ticket)
-                });
+                console.log('🎨 Generating real QR code...');
+                const qrCodeDataURL = await generateQRCodeDataURL(ref, name, ticket, phone);
+                
+                console.log('📧 Sending email with embedded QR code...');
+                await emailjs.send(
+                    'service_rqxvm4u',
+                    'template_t85ouum',
+                    {
+                        to_name: name,
+                        to_email: email,
+                        reference: ref,
+                        phone: phone,
+                        ticket_type: ticket,
+                        quantity: qty.toString(),
+                        total: 'KSH ' + total.toLocaleString(),
+                        qr_code: qrCodeDataURL
+                    },
+                    'eUpIab2_n-wLXmMUj'
+                );
+                
                 newBooking.email_sent = true;
                 console.log('✅ Email sent to:', email);
+                alert('✅ Booking saved & emailed! Reference: ' + ref);
+                
             } catch(err) {
-                console.error('❌ Email failed:', err.message);
+                console.error('❌ Email failed:', err);
+                alert('✅ Booking saved! (Email may not have been sent)\nReference: ' + ref);
             }
             
-            // Clear form
             document.getElementById('addName').value = '';
             document.getElementById('addPhone').value = '';
             document.getElementById('addEmail').value = '';
             document.getElementById('addQty').value = '1';
             
-            alert('✅ Booking saved! Reference: ' + ref);
             refreshAll();
         });
 
         // ==================== TICKET & EMAIL FUNCTIONS ====================
-        function generateQRUrl(ref, name, ticket) {
-            return `https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${encodeURIComponent(JSON.stringify({
-                ref, name, ticket, event: 'CHINGENDE', date: '2026-10-10'
-            }))}&choe=UTF-8`;
-        }
-        
         async function sendTicketEmail(ref) {
             const booking = bookings.find(x => x.ref === ref);
-            if (!booking || !booking.email || booking.email === 'N/A') {
+            if (!booking) {
+                alert('Booking not found!');
+                return;
+            }
+            
+            if (!booking.email || booking.email === 'N/A') {
                 alert('No email address available!');
                 return;
             }
             
             try {
-                await emailjs.send('service_rqxvm4u', 'template_t85ouum', {
-                    to_name: booking.name,
-                    to_email: booking.email,
-                    reference: booking.ref,
-                    phone: booking.phone,
-                    ticket_type: booking.ticket,
-                    quantity: booking.qty.toString(),
-                    total: booking.total.toLocaleString(),
-                    qr_code: generateQRUrl(booking.ref, booking.name, booking.ticket)
-                });
+                console.log('🎨 Generating QR code for email...');
+                const qrCodeDataURL = await generateQRCodeDataURL(
+                    booking.ref, booking.name, booking.ticket, booking.phone
+                );
+                
+                console.log('📧 Sending email...');
+                await emailjs.send(
+                    'service_rqxvm4u',
+                    'template_t85ouum',
+                    {
+                        to_name: booking.name,
+                        to_email: booking.email,
+                        reference: booking.ref,
+                        phone: booking.phone,
+                        ticket_type: booking.ticket,
+                        quantity: booking.qty.toString(),
+                        total: 'KSH ' + booking.total.toLocaleString(),
+                        qr_code: qrCodeDataURL
+                    },
+                    'eUpIab2_n-wLXmMUj'
+                );
+                
                 booking.email_sent = true;
-                console.log('✅ Email sent to:', booking.email);
+                console.log('✅ Email sent!');
                 alert('✅ Email sent successfully!');
+                
+                try {
+                    await supabase.from('bookings').update({ email_sent: true }).eq('booking_reference', ref);
+                } catch(e) {}
+                
             } catch(err) {
-                console.error('❌ Email failed:', err.message);
-                alert('❌ Failed to send email: ' + err.message);
+                console.error('❌ Email failed:', err);
+                alert('❌ Failed to send email. Please try again.');
             }
+            
             refreshAll();
         }
         
@@ -929,11 +985,17 @@
                 if (qrContainer) {
                     qrContainer.innerHTML = '';
                     new QRCode(qrContainer, {
-                        text: JSON.stringify({ ref: booking.ref, name: booking.name, phone: booking.phone, ticket: booking.ticket }),
-                        width: 100,
-                        height: 100,
+                        text: JSON.stringify({
+                            ref: booking.ref,
+                            name: booking.name,
+                            ticket: booking.ticket,
+                            phone: booking.phone
+                        }),
+                        width: 120,
+                        height: 120,
                         colorDark: '#059669',
-                        colorLight: '#ffffff'
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.H
                     });
                 }
             }, 200);
@@ -1094,6 +1156,7 @@
 
         console.log('🫘 CHING\'ENDE Admin Dashboard - Ready!');
         console.log('📋 Gate entries save to Supabase automatically');
+        console.log('🎨 Real QR codes generated with QRCode.js');
     </script>
 </body>
 </html>
