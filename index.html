@@ -85,7 +85,7 @@
         .gate-box h2{font-family:'JetBrains Mono',monospace;margin-bottom:0.5rem}
         .gate-box .subtitle{color:#6b7280;margin-bottom:1.5rem;font-size:0.95rem}
         .gate-box input{font-family:'JetBrains Mono',monospace;font-size:1.2rem;text-align:center;letter-spacing:3px;padding:0.9rem;border:3px solid #d1fae5;border-radius:12px;width:350px;max-width:90%;outline:none;transition:all 0.3s}
-        .gate-box input:focus{border-color:#059669;box-shadow:0 0 0 4px rgba(5,150,105,0.1)}
+        .gate-box input:focus{border-color:#059669}
         .gate-box input.entered-anim{border-color:#10b981;background:#ecfdf5;animation:flashGreen 0.5s ease-out}
         .gate-box input.denied-anim{border-color:#ef4444;background:#fef2f2;animation:flashRed 0.5s ease-out}
         .gate-box input.warn-anim{border-color:#f59e0b;background:#fffbeb;animation:flashYellow 0.5s ease-out}
@@ -114,7 +114,7 @@
         .btn-save{padding:0.65rem 1.5rem;background:#059669;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.9rem}
 
         .btn-download{padding:0.8rem 2rem;background:#059669;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.9rem;margin:0.3rem;transition:0.2s}
-        .btn-download:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(5,150,105,0.3)}
+        .btn-download:hover{transform:translateY(-2px)}
 
         .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
         .modal-overlay.show{display:flex}
@@ -131,9 +131,6 @@
         .ticket-preview .ticket-field .val{font-weight:600;font-size:0.9rem}
         .ticket-preview .qr-container{text-align:center;margin-top:0.8rem;padding-top:0.8rem;border-top:2px solid #d1fae5}
         .ticket-preview .qr-container canvas{margin:0 auto}
-
-        .email-status{display:inline-block;padding:2px 8px;border-radius:8px;font-size:0.65rem;font-weight:600}
-        .email-status.sent{background:#d1fae5;color:#065f46}
 
         .announce-box{background:#f0fdf4;border-radius:12px;padding:1.5rem;margin-bottom:1rem;border:2px solid #d1fae5}
         .announce-box textarea{width:100%;padding:0.8rem;border:2px solid #d1fae5;border-radius:8px;font-family:'Inter',sans-serif;font-size:0.9rem;resize:vertical;min-height:100px;outline:none}
@@ -157,7 +154,17 @@
     </div>
 
     <div id="mainApp">
-        <div class="topbar"><h1>🫘 CHING'ENDE ADMIN</h1><div><span style="font-size:0.8rem;"><span class="sync-dot online" id="syncDot"></span><span id="syncText">Connected</span></span><button class="btn-refresh" id="refreshBtn" style="margin-left:1rem;">🔄 Refresh</button><button class="btn-logout" id="logoutBtn" style="margin-left:0.5rem;">🚪 Logout</button></div></div>
+        <div class="topbar">
+            <h1>🫘 CHING'ENDE ADMIN</h1>
+            <div>
+                <span style="font-size:0.8rem;">
+                    <span class="sync-dot online" id="syncDot"></span>
+                    <span id="syncText">Connected</span>
+                </span>
+                <button class="btn-refresh" id="refreshBtn" style="margin-left:1rem;">🔄 Refresh</button>
+                <button class="btn-logout" id="logoutBtn" style="margin-left:0.5rem;">🚪 Logout</button>
+            </div>
+        </div>
 
         <div class="tabs">
             <button class="on" data-tab="dashboard">📊 Dashboard</button>
@@ -176,270 +183,917 @@
                     <div class="stat-card" style="border-left-color:#3b82f6"><div class="big" id="countInside">0</div><div class="lbl">🟢 Inside Venue</div></div>
                     <div class="stat-card" style="border-left-color:#ef4444"><div class="big" id="countOutside">0</div><div class="lbl">🔴 Outside Venue</div></div>
                 </div>
-                <div class="card"><div class="card-header">🕐 Recent Gate Activity</div><div class="table-wrap"><table><thead><tr><th>Reference</th><th>Name</th><th>Phone</th><th>Ticket</th><th>Qty</th><th>Total</th><th>Status</th><th>Location</th></tr></thead><tbody id="recentTableBody"></tbody></table></div></div>
+                <div class="card">
+                    <div class="card-header">🕐 Recent Gate Activity</div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Reference</th><th>Name</th><th>Phone</th><th>Ticket</th><th>Qty</th><th>Total</th><th>Status</th><th>Location</th></tr></thead>
+                            <tbody id="recentTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <div class="panel" id="panel-bookings">
-                <div class="search-bar"><input type="text" id="searchInput" placeholder="🔍 Search..."><select id="statusFilter"><option value="all">All</option><option value="pending">Pending</option><option value="paid">Paid</option><option value="confirmed">Confirmed</option><option value="entered">Inside Venue</option><option value="cancelled">Cancelled</option></select></div>
-                <div class="card"><div class="table-wrap"><table><thead><tr><th>Reference</th><th>Name</th><th>Phone</th><th>Ticket</th><th>Qty</th><th>Total</th><th>Status</th><th>Location</th><th>Actions</th></tr></thead><tbody id="bookingsTableBody"></tbody></table></div></div>
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="🔍 Search...">
+                    <select id="statusFilter">
+                        <option value="all">All</option>
+                        <option value="pending">Pending</option>
+                        <option value="paid">Paid</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="entered">Inside Venue</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="card">
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Reference</th><th>Name</th><th>Phone</th><th>Ticket</th><th>Qty</th><th>Total</th><th>Status</th><th>Location</th><th>Actions</th></tr></thead>
+                            <tbody id="bookingsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <div class="panel" id="panel-gate">
-                <div class="card"><div class="gate-box">
-                    <h2>🚪 Gate Entry - Auto Scan</h2><p class="subtitle">Scan QR or type reference — entry is automatic</p>
-                    <input type="text" id="gateInput" placeholder="Scan or type reference..." autocomplete="off">
-                    <div class="gate-auto-notice">⚡ AUTO-PROCESS: Scans instantly save to database</div>
-                    <div class="result-box" id="gateResult"></div>
-                    <div class="gate-options"><button class="gate-camera" id="gateCameraBtn">📷 Open Camera</button><button class="gate-upload" id="gateUploadBtn">📁 Upload QR</button><input type="file" id="gateFileInput" accept="image/*" style="display:none;"></div>
-                    <div id="gateCameraContainer" style="display:none;margin-top:1rem;"><video id="gateVideo" autoplay playsinline style="width:100%;max-width:400px;border-radius:12px;border:3px solid #059669;margin:0 auto;display:block;"></video><canvas id="gateCanvas" style="display:none;"></canvas><button class="gate-stop" id="gateStopCamera" style="margin-top:0.5rem;">⏹️ Stop Camera</button></div>
-                </div></div>
+                <div class="card">
+                    <div class="gate-box">
+                        <h2>🚪 Gate Entry - Auto Scan</h2>
+                        <p class="subtitle">Scan QR or type reference — entry is automatic</p>
+                        <input type="text" id="gateInput" placeholder="Scan or type reference..." autocomplete="off">
+                        <div class="gate-auto-notice">⚡ AUTO-PROCESS: Scans instantly save to database</div>
+                        <div class="result-box" id="gateResult"></div>
+                        <div class="gate-options">
+                            <button class="gate-camera" id="gateCameraBtn">📷 Open Camera</button>
+                            <button class="gate-upload" id="gateUploadBtn">📁 Upload QR</button>
+                            <input type="file" id="gateFileInput" accept="image/*" style="display:none;">
+                        </div>
+                        <div id="gateCameraContainer" style="display:none;margin-top:1rem;">
+                            <video id="gateVideo" autoplay playsinline style="width:100%;max-width:400px;border-radius:12px;border:3px solid #059669;margin:0 auto;display:block;"></video>
+                            <canvas id="gateCanvas" style="display:none;"></canvas>
+                            <button class="gate-stop" id="gateStopCamera" style="margin-top:0.5rem;">⏹️ Stop Camera</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="panel" id="panel-add">
-                <div class="card"><div class="card-header">➕ Add New Booking</div><div style="padding:1.5rem;"><div class="form-inline"><div class="field"><label>Full Name *</label><input type="text" id="addName" placeholder="Name"></div><div class="field"><label>Phone *</label><input type="tel" id="addPhone" placeholder="07XX XXX XXX"></div><div class="field"><label>Email *</label><input type="email" id="addEmail" placeholder="email@example.com"></div></div><div class="form-inline"><div class="field"><label>Ticket</label><select id="addTicket"><option value="Regular">Regular - 500</option><option value="VIP">VIP - 1,000</option><option value="VVIP">VVIP - 2,000</option></select></div><div class="field"><label>Qty</label><input type="number" id="addQty" value="1" min="1" max="20" style="width:80px;"></div><div class="field"><label>Status</label><select id="addStatus"><option value="confirmed">Confirmed</option><option value="paid">Paid</option><option value="pending">Pending</option></select></div><button class="btn-save" id="saveBookingBtn">✅ Save & Send Email</button></div></div></div>
+                <div class="card">
+                    <div class="card-header">➕ Add New Booking</div>
+                    <div style="padding:1.5rem;">
+                        <div class="form-inline">
+                            <div class="field"><label>Full Name *</label><input type="text" id="addName" placeholder="Name"></div>
+                            <div class="field"><label>Phone *</label><input type="tel" id="addPhone" placeholder="07XX XXX XXX"></div>
+                            <div class="field"><label>Email *</label><input type="email" id="addEmail" placeholder="email@example.com"></div>
+                        </div>
+                        <div class="form-inline">
+                            <div class="field">
+                                <label>Ticket</label>
+                                <select id="addTicket">
+                                    <option value="Regular">Regular - 500</option>
+                                    <option value="VIP">VIP - 1,000</option>
+                                    <option value="VVIP">VVIP - 2,000</option>
+                                </select>
+                            </div>
+                            <div class="field"><label>Qty</label><input type="number" id="addQty" value="1" min="1" max="20" style="width:80px;"></div>
+                            <div class="field">
+                                <label>Status</label>
+                                <select id="addStatus">
+                                    <option value="confirmed">Confirmed</option>
+                                    <option value="paid">Paid</option>
+                                    <option value="pending">Pending</option>
+                                </select>
+                            </div>
+                            <button class="btn-save" id="saveBookingBtn">✅ Save & Send Email</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="panel" id="panel-announce">
-                <div class="card"><div class="card-header">📢 Send Announcement</div><div style="padding:1.5rem;"><div class="announce-box"><label style="font-weight:600;font-size:0.9rem;">📌 Subject</label><input type="text" id="announceSubject" value="🎉 CHING'ENDE Update"><label style="font-weight:600;font-size:0.9rem;margin-top:0.8rem;display:block;">📝 Message</label><textarea id="announceMessage">Hello! Important update about CHING'ENDE Album Launch on October 10th, 2026. 🫘</textarea></div><button class="btn-download" id="sendAnnounceBtn" style="background:#059669;">📧 Send to All Attendees (<span id="announceCount">0</span>)</button><div id="announceProgress" style="display:none;margin-top:1rem;padding:1rem;background:#f0fdf4;border-radius:8px;text-align:center;"><p>📧 Sending... <span id="announceSent">0</span>/<span id="announceTotal">0</span></p><div style="background:#e2e8f0;border-radius:10px;height:8px;"><div id="announceBar" style="background:#059669;height:100%;border-radius:10px;width:0%;"></div></div></div></div></div>
+                <div class="card">
+                    <div class="card-header">📢 Send Announcement</div>
+                    <div style="padding:1.5rem;">
+                        <div class="announce-box">
+                            <label style="font-weight:600;font-size:0.9rem;">📌 Subject</label>
+                            <input type="text" id="announceSubject" value="🎉 CHING'ENDE Update">
+                            <label style="font-weight:600;font-size:0.9rem;margin-top:0.8rem;display:block;">📝 Message</label>
+                            <textarea id="announceMessage">Hello! Important update about CHING'ENDE Album Launch on October 10th, 2026. 🫘</textarea>
+                        </div>
+                        <button class="btn-download" id="sendAnnounceBtn" style="background:#059669;">📧 Send to All Attendees (<span id="announceCount">0</span>)</button>
+                        <div id="announceProgress" style="display:none;margin-top:1rem;padding:1rem;background:#f0fdf4;border-radius:8px;text-align:center;">
+                            <p>📧 Sending... <span id="announceSent">0</span>/<span id="announceTotal">0</span></p>
+                            <div style="background:#e2e8f0;border-radius:10px;height:8px;">
+                                <div id="announceBar" style="background:#059669;height:100%;border-radius:10px;width:0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="panel" id="panel-export">
-                <div class="card"><div class="card-header">📥 Export Data</div><div style="padding:2rem;text-align:center;"><button class="btn-download" id="exportCSVBtn">📊 Export CSV</button><button class="btn-download" id="exportJSONBtn" style="background:#f59e0b;">📋 Export JSON</button></div></div>
+                <div class="card">
+                    <div class="card-header">📥 Export Data</div>
+                    <div style="padding:2rem;text-align:center;">
+                        <button class="btn-download" id="exportCSVBtn">📊 Export CSV</button>
+                        <button class="btn-download" id="exportJSONBtn" style="background:#f59e0b;">📋 Export JSON</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="ticketModal"><div class="modal-box"><button class="modal-close" id="closeTicketModal">✕</button><div id="ticketContent"></div></div></div>
+    <div class="modal-overlay" id="ticketModal">
+        <div class="modal-box">
+            <button class="modal-close" id="closeTicketModal">✕</button>
+            <div id="ticketContent"></div>
+        </div>
+    </div>
 
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
         
-        const supabase = createClient('https://zxforhokpsiqkceesalk.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Zm9yaG9rcHNpcWtjZWVzYWxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTYxMjksImV4cCI6MjA5NTM5MjEyOX0.-circeJO1eayDkn3jHDC53oBxoRgDLmr5Uk2XBPYglA');
+        const supabase = createClient(
+            'https://zxforhokpsiqkceesalk.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Zm9yaG9rcHNpcWtjZWVzYWxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTYxMjksImV4cCI6MjA5NTM5MjEyOX0.-circeJO1eayDkn3jHDC53oBxoRgDLmr5Uk2XBPYglA'
+        );
+        
         emailjs.init('eUpIab2_n-wLXmMUj');
 
-        let bookings=[],gateStream=null,gateScanning=false,gateTimeout=null;
+        let bookings = [];
+        let gateStream = null;
+        let gateScanning = false;
+        let gateTimeout = null;
 
-        function setOnline(){document.getElementById('syncDot').className='sync-dot online';document.getElementById('syncText').textContent='Connected';}
-        function setOffline(){document.getElementById('syncDot').className='sync-dot offline';document.getElementById('syncText').textContent='Offline';}
+        // ==================== ONLINE/OFFLINE STATUS ====================
+        function setOnline() {
+            document.getElementById('syncDot').className = 'sync-dot online';
+            document.getElementById('syncText').textContent = 'Connected';
+        }
+        
+        function setOffline() {
+            document.getElementById('syncDot').className = 'sync-dot offline';
+            document.getElementById('syncText').textContent = 'Offline';
+        }
 
-        async function loadData(){
-            try{
-                const{data,error}=await supabase.from('bookings').select('*').order('created_at',{ascending:false});
-                if(error)throw error;
-                bookings=data.map(b=>({
-                    id:b.id,ref:b.booking_reference,name:b.full_name,phone:b.phone,email:b.email||'N/A',
-                    ticket:b.ticket_type,qty:b.quantity,price:b.price_per_ticket,total:b.total_amount,
-                    status:b.status,gate_entered:b.gate_entered||false,gate_time:b.gate_time||null,
-                    email_sent:b.email_sent||false,date:b.created_at
+        // ==================== LOAD DATA FROM SUPABASE ====================
+        async function loadData() {
+            try {
+                console.log('🔄 Loading data from Supabase...');
+                const { data, error } = await supabase
+                    .from('bookings')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (error) {
+                    console.error('❌ Supabase load error:', error);
+                    throw error;
+                }
+                
+                bookings = data.map(b => ({
+                    id: b.id,
+                    ref: b.booking_reference,
+                    name: b.full_name,
+                    phone: b.phone,
+                    email: b.email || 'N/A',
+                    ticket: b.ticket_type,
+                    qty: b.quantity,
+                    price: b.price_per_ticket,
+                    total: b.total_amount,
+                    status: b.status,
+                    gate_entered: b.gate_entered || false,
+                    gate_time: b.gate_time || null,
+                    email_sent: b.email_sent || false,
+                    date: b.created_at
                 }));
+                
                 setOnline();
-                console.log('✅ Loaded from Supabase:',bookings.length,'bookings');
-            }catch(err){
+                console.log('✅ Loaded from Supabase:', bookings.length, 'bookings');
+            } catch(err) {
                 setOffline();
-                bookings=JSON.parse(localStorage.getItem('chingende_bookings')||'[]');
-                console.log('⚠️ Offline mode, using localStorage');
+                console.error('⚠️ Loading from localStorage fallback');
+                bookings = JSON.parse(localStorage.getItem('chingende_bookings') || '[]');
+                console.log('📦 Loaded from localStorage:', bookings.length, 'bookings');
             }
             refreshAll();
         }
 
-        function refreshAll(){refreshDashboard();renderBookings();updateAnnounceCount();}
-        function refreshDashboard(){
-            document.getElementById('countTotal').textContent=bookings.length;
-            document.getElementById('countPending').textContent=bookings.filter(b=>b.status==='pending').length;
-            document.getElementById('countInside').textContent=bookings.filter(b=>b.gate_entered).length;
-            document.getElementById('countOutside').textContent=bookings.filter(b=>!b.gate_entered&&b.status!=='cancelled').length;
-            const recent=bookings.slice(0,5);
-            document.getElementById('recentTableBody').innerHTML=recent.length===0?'<tr><td colspan="8" style="text-align:center;color:#6b7280;">No bookings</td></tr>':recent.map(b=>`<tr><td>${b.ref}</td><td>${b.name}</td><td>${b.phone}</td><td>${b.ticket}</td><td>${b.qty}</td><td>KSH ${b.total.toLocaleString()}</td><td><span class="badge ${b.status}">${b.status}</span></td><td>${b.gate_entered?'<span class="gate-in yes">INSIDE</span>':'<span class="gate-in no">OUTSIDE</span>'}</td></tr>`).join('');
+        // ==================== REFRESH ALL VIEWS ====================
+        function refreshAll() {
+            refreshDashboard();
+            renderBookings();
+            updateAnnounceCount();
         }
 
-        function renderBookings(){
-            const search=(document.getElementById('searchInput')?.value||'').toLowerCase();
-            const status=document.getElementById('statusFilter')?.value||'all';
-            let f=bookings;
-            if(search)f=f.filter(b=>b.name.toLowerCase().includes(search)||b.phone.includes(search)||b.ref.toLowerCase().includes(search));
-            if(status==='entered')f=f.filter(b=>b.gate_entered);
-            else if(status!=='all')f=f.filter(b=>b.status===status);
-            document.getElementById('bookingsTableBody').innerHTML=f.length===0?'<tr><td colspan="9" style="text-align:center;color:#6b7280;">No bookings</td></tr>':f.map(b=>`<tr><td>${b.ref}</td><td>${b.name}</td><td>${b.phone}</td><td>${b.ticket}</td><td>${b.qty}</td><td>KSH ${b.total.toLocaleString()}</td><td><span class="badge ${b.status}">${b.status}</span></td><td>${b.gate_entered?`<span class="gate-in yes">INSIDE</span><br><small style="color:#6b7280;">${new Date(b.gate_time).toLocaleTimeString()}</small>`:'<span class="gate-in no">OUTSIDE</span>'}</td><td><div class="actions-cell"><button class="btn-act ticket" data-ref="${b.ref}">🎫</button><button class="btn-act email" data-ref="${b.ref}">📧</button>${b.gate_entered?`<button class="btn-act reset" data-ref="${b.ref}">🔄</button>`:''}</div></td></tr>`).join('');
-            document.querySelectorAll('#bookingsTableBody .btn-act').forEach(btn=>{btn.addEventListener('click',function(){const ref=this.getAttribute('data-ref');if(this.classList.contains('ticket'))showTicket(ref);else if(this.classList.contains('email'))sendTicketEmail(ref);else if(this.classList.contains('reset'))resetGate(ref);});});
+        function refreshDashboard() {
+            document.getElementById('countTotal').textContent = bookings.length;
+            document.getElementById('countPending').textContent = bookings.filter(b => b.status === 'pending').length;
+            document.getElementById('countInside').textContent = bookings.filter(b => b.gate_entered).length;
+            document.getElementById('countOutside').textContent = bookings.filter(b => !b.gate_entered && b.status !== 'cancelled').length;
+            
+            const recent = bookings.slice(0, 5);
+            document.getElementById('recentTableBody').innerHTML = recent.length === 0 
+                ? '<tr><td colspan="8" style="text-align:center;color:#6b7280;">No bookings</td></tr>'
+                : recent.map(b => `
+                    <tr>
+                        <td>${b.ref}</td>
+                        <td>${b.name}</td>
+                        <td>${b.phone}</td>
+                        <td>${b.ticket}</td>
+                        <td>${b.qty}</td>
+                        <td>KSH ${b.total.toLocaleString()}</td>
+                        <td><span class="badge ${b.status}">${b.status}</span></td>
+                        <td>${b.gate_entered ? '<span class="gate-in yes">INSIDE</span>' : '<span class="gate-in no">OUTSIDE</span>'}</td>
+                    </tr>
+                `).join('');
         }
 
-        // ============================================
-        // GATE ENTRY - SAVES TO SUPABASE
-        // ============================================
-        document.getElementById('gateInput').addEventListener('input',function(){
-            const input=this.value.trim();
-            if(input.length<4)return;
+        function renderBookings() {
+            const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
+            const status = document.getElementById('statusFilter')?.value || 'all';
+            
+            let filtered = bookings;
+            
+            if (search) {
+                filtered = filtered.filter(b => 
+                    b.name.toLowerCase().includes(search) || 
+                    b.phone.includes(search) || 
+                    b.ref.toLowerCase().includes(search)
+                );
+            }
+            
+            if (status === 'entered') {
+                filtered = filtered.filter(b => b.gate_entered);
+            } else if (status !== 'all') {
+                filtered = filtered.filter(b => b.status === status);
+            }
+            
+            document.getElementById('bookingsTableBody').innerHTML = filtered.length === 0 
+                ? '<tr><td colspan="9" style="text-align:center;color:#6b7280;">No bookings</td></tr>'
+                : filtered.map(b => `
+                    <tr>
+                        <td>${b.ref}</td>
+                        <td>${b.name}</td>
+                        <td>${b.phone}</td>
+                        <td>${b.ticket}</td>
+                        <td>${b.qty}</td>
+                        <td>KSH ${b.total.toLocaleString()}</td>
+                        <td><span class="badge ${b.status}">${b.status}</span></td>
+                        <td>${b.gate_entered 
+                            ? `<span class="gate-in yes">INSIDE</span><br><small style="color:#6b7280;">${new Date(b.gate_time).toLocaleTimeString()}</small>` 
+                            : '<span class="gate-in no">OUTSIDE</span>'}
+                        </td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-act ticket" data-ref="${b.ref}">🎫</button>
+                                <button class="btn-act email" data-ref="${b.ref}">📧</button>
+                                ${b.gate_entered ? `<button class="btn-act reset" data-ref="${b.ref}">🔄</button>` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            
+            // Re-attach event listeners
+            document.querySelectorAll('#bookingsTableBody .btn-act').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const ref = this.getAttribute('data-ref');
+                    if (this.classList.contains('ticket')) showTicket(ref);
+                    else if (this.classList.contains('email')) sendTicketEmail(ref);
+                    else if (this.classList.contains('reset')) resetGate(ref);
+                });
+            });
+        }
+
+        // ==================== GATE ENTRY - SAVES TO SUPABASE ====================
+        document.getElementById('gateInput').addEventListener('input', function() {
+            const input = this.value.trim();
+            if (input.length < 4) return;
+            
             clearTimeout(gateTimeout);
-            gateTimeout=setTimeout(()=>{
-                const b=bookings.find(x=>x.ref.toLowerCase()===input.toLowerCase()||x.phone===input);
-                if(b)autoProcessEntry(b);
-            },300);
+            gateTimeout = setTimeout(() => {
+                const booking = bookings.find(x => 
+                    x.ref.toLowerCase() === input.toLowerCase() || 
+                    x.phone === input
+                );
+                if (booking) autoProcessEntry(booking);
+            }, 300);
         });
 
-        document.getElementById('gateCameraBtn').addEventListener('click',async function(){
-            document.getElementById('gateCameraContainer').style.display='block';
-            try{
-                gateStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:640},height:{ideal:480}}});
-                document.getElementById('gateVideo').srcObject=gateStream;
+        // Camera scan
+        document.getElementById('gateCameraBtn').addEventListener('click', async function() {
+            document.getElementById('gateCameraContainer').style.display = 'block';
+            try {
+                gateStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }
+                });
+                document.getElementById('gateVideo').srcObject = gateStream;
                 await document.getElementById('gateVideo').play();
-                gateScanning=true;gateScanLoop();
-            }catch(err){alert('Camera error: '+err.message);document.getElementById('gateCameraContainer').style.display='none';}
+                gateScanning = true;
+                gateScanLoop();
+            } catch(err) {
+                alert('Camera error: ' + err.message);
+                document.getElementById('gateCameraContainer').style.display = 'none';
+            }
         });
-        document.getElementById('gateStopCamera').addEventListener('click',()=>{stopGateScanner();document.getElementById('gateCameraContainer').style.display='none';});
-        function stopGateScanner(){gateScanning=false;if(gateStream){gateStream.getTracks().forEach(t=>t.stop());gateStream=null;}}
 
-        function gateScanLoop(){
-            if(!gateScanning)return;
-            const video=document.getElementById('gateVideo'),canvas=document.getElementById('gateCanvas');
-            if(video.readyState>=video.HAVE_ENOUGH_DATA){
-                canvas.width=video.videoWidth;canvas.height=video.videoHeight;
-                const ctx=canvas.getContext('2d');ctx.drawImage(video,0,0);
-                const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
-                const code=jsQR(imageData.data,canvas.width,canvas.height,{inversionAttempts:'dontInvert'});
-                if(code&&code.data){
-                    stopGateScanner();document.getElementById('gateCameraContainer').style.display='none';
-                    try{const data=JSON.parse(code.data);const b=bookings.find(x=>x.ref===data.ref);if(b){document.getElementById('gateInput').value=b.ref;autoProcessEntry(b);}else{showGateResult('deny','Booking not found');flashInput('denied-anim');}}catch(e){showGateResult('deny','Invalid QR');flashInput('denied-anim');}
+        document.getElementById('gateStopCamera').addEventListener('click', () => {
+            stopGateScanner();
+            document.getElementById('gateCameraContainer').style.display = 'none';
+        });
+
+        function stopGateScanner() {
+            gateScanning = false;
+            if (gateStream) {
+                gateStream.getTracks().forEach(t => t.stop());
+                gateStream = null;
+            }
+        }
+
+        function gateScanLoop() {
+            if (!gateScanning) return;
+            
+            const video = document.getElementById('gateVideo');
+            const canvas = document.getElementById('gateCanvas');
+            
+            if (video.readyState >= video.HAVE_ENOUGH_DATA) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0);
+                
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, canvas.width, canvas.height, { inversionAttempts: 'dontInvert' });
+                
+                if (code && code.data) {
+                    stopGateScanner();
+                    document.getElementById('gateCameraContainer').style.display = 'none';
+                    try {
+                        const data = JSON.parse(code.data);
+                        const booking = bookings.find(x => x.ref === data.ref);
+                        if (booking) {
+                            document.getElementById('gateInput').value = booking.ref;
+                            autoProcessEntry(booking);
+                        } else {
+                            showGateResult('deny', 'Booking not found');
+                            flashInput('denied-anim');
+                        }
+                    } catch(e) {
+                        showGateResult('deny', 'Invalid QR code');
+                        flashInput('denied-anim');
+                    }
                 }
             }
-            if(gateScanning)requestAnimationFrame(gateScanLoop);
+            
+            if (gateScanning) requestAnimationFrame(gateScanLoop);
         }
 
-        document.getElementById('gateUploadBtn').addEventListener('click',()=>document.getElementById('gateFileInput').click());
-        document.getElementById('gateFileInput').addEventListener('change',function(e){
-            const file=e.target.files[0];if(!file)return;
-            const reader=new FileReader();
-            reader.onload=function(event){
-                const img=new Image();
-                img.onload=function(){
-                    const canvas=document.getElementById('gateCanvas');canvas.width=img.width;canvas.height=img.height;
-                    const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0);
-                    const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
-                    const code=jsQR(imageData.data,canvas.width,canvas.height,{inversionAttempts:'dontInvert'});
-                    if(code&&code.data){
-                        try{const data=JSON.parse(code.data);const b=bookings.find(x=>x.ref===data.ref);if(b){document.getElementById('gateInput').value=b.ref;autoProcessEntry(b);}else{showGateResult('deny','Booking not found');flashInput('denied-anim');}}catch(e){showGateResult('deny','Invalid QR');flashInput('denied-anim');}
-                    }else{showGateResult('deny','No QR detected');flashInput('denied-anim');}
-                };
-                img.src=event.target.result;
-            };
-            reader.readAsDataURL(file);this.value='';
+        // Upload QR
+        document.getElementById('gateUploadBtn').addEventListener('click', () => {
+            document.getElementById('gateFileInput').click();
         });
 
-        async function autoProcessEntry(b){
-            if(b.gate_entered){
-                showGateResult('warn',`<strong>${b.name}</strong><br>${b.ticket} x${b.qty}<br>KSH ${b.total.toLocaleString()}<br><br>⚠️ <strong>ALREADY INSIDE</strong><br>Entered: ${new Date(b.gate_time).toLocaleTimeString()}`);
-                flashInput('warn-anim');clearGateInput();return;
+        document.getElementById('gateFileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.getElementById('gateCanvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, canvas.width, canvas.height, { inversionAttempts: 'dontInvert' });
+                    
+                    if (code && code.data) {
+                        try {
+                            const data = JSON.parse(code.data);
+                            const booking = bookings.find(x => x.ref === data.ref);
+                            if (booking) {
+                                document.getElementById('gateInput').value = booking.ref;
+                                autoProcessEntry(booking);
+                            } else {
+                                showGateResult('deny', 'Booking not found');
+                                flashInput('denied-anim');
+                            }
+                        } catch(e) {
+                            showGateResult('deny', 'Invalid QR code');
+                            flashInput('denied-anim');
+                        }
+                    } else {
+                        showGateResult('deny', 'No QR code detected');
+                        flashInput('denied-anim');
+                    }
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+            this.value = '';
+        });
+
+        // ==================== AUTO PROCESS GATE ENTRY ====================
+        async function autoProcessEntry(booking) {
+            console.log('🔍 Processing gate entry for:', booking.ref);
+            
+            // Already inside
+            if (booking.gate_entered) {
+                showGateResult('warn', 
+                    `<strong>${booking.name}</strong><br>
+                    ${booking.ticket} x${booking.qty}<br>
+                    KSH ${booking.total.toLocaleString()}<br><br>
+                    ⚠️ <strong>ALREADY INSIDE</strong><br>
+                    Entered: ${new Date(booking.gate_time).toLocaleTimeString()}`
+                );
+                flashInput('warn-anim');
+                clearGateInput();
+                return;
             }
-            if(b.status==='cancelled'){
-                showGateResult('deny',`<strong>${b.name}</strong><br>${b.ticket} x${b.qty}<br><br>❌ <strong>TICKET CANCELLED</strong>`);
-                flashInput('denied-anim');clearGateInput();return;
+            
+            // Cancelled
+            if (booking.status === 'cancelled') {
+                showGateResult('deny', 
+                    `<strong>${booking.name}</strong><br>
+                    ${booking.ticket} x${booking.qty}<br><br>
+                    ❌ <strong>TICKET CANCELLED</strong>`
+                );
+                flashInput('denied-anim');
+                clearGateInput();
+                return;
             }
 
-            const now=new Date().toISOString();
+            const now = new Date().toISOString();
             
             // SAVE TO SUPABASE
-            try{
-                const{error}=await supabase.from('bookings').update({
-                    gate_entered:true,
-                    gate_time:now,
-                    status:'entered',
-                    updated_at:now
-                }).eq('booking_reference',b.ref);
+            try {
+                console.log('💾 Saving gate entry to Supabase...');
                 
-                if(error)throw error;
+                const { data, error } = await supabase
+                    .from('bookings')
+                    .update({
+                        gate_entered: true,
+                        gate_time: now,
+                        status: 'entered'
+                    })
+                    .eq('booking_reference', booking.ref)
+                    .select();
+                
+                if (error) {
+                    console.error('❌ Supabase update error:', error.message, error.details, error.hint);
+                    throw error;
+                }
+                
+                console.log('✅ Gate entry saved to Supabase:', booking.ref, data);
                 setOnline();
-                console.log('✅ Gate entry saved to Supabase:',b.ref);
-            }catch(err){
+                
+            } catch(err) {
                 setOffline();
-                console.error('❌ Supabase save failed:',err.message);
+                console.error('❌ Supabase save failed:', err.message);
+                // Continue with local update even if Supabase fails
             }
 
             // Update local state
-            b.gate_entered=true;
-            b.gate_time=now;
-            b.status='entered';
-            localStorage.setItem('chingende_bookings',JSON.stringify(bookings));
+            booking.gate_entered = true;
+            booking.gate_time = now;
+            booking.status = 'entered';
+            
+            // Save to localStorage as backup
+            localStorage.setItem('chingende_bookings', JSON.stringify(bookings));
 
-            showGateResult('allow',`<strong>${b.name}</strong><br>${b.ticket} x${b.qty}<br>KSH ${b.total.toLocaleString()}<br><br>🟢 <strong>ENTRY GRANTED</strong><br>Saved to database<br>${new Date(now).toLocaleTimeString()}`);
+            // Show success
+            showGateResult('allow', 
+                `<strong>${booking.name}</strong><br>
+                ${booking.ticket} x${booking.qty}<br>
+                KSH ${booking.total.toLocaleString()}<br><br>
+                🟢 <strong>ENTRY GRANTED</strong><br>
+                Saved to database<br>
+                ${new Date(now).toLocaleTimeString()}`
+            );
             flashInput('entered-anim');
             clearGateInput();
             refreshAll();
         }
 
-        function clearGateInput(){setTimeout(()=>{const inp=document.getElementById('gateInput');inp.value='';inp.className='';},1500);}
-        function flashInput(c){const inp=document.getElementById('gateInput');inp.className=c;setTimeout(()=>{inp.className='';},1500);}
-
-        function showGateResult(type,message){
-            const r=document.getElementById('gateResult');r.style.display='block';
-            if(type==='allow'){r.className='result-box show allow';r.innerHTML=`<div class="gate-big-icon">🟢</div><div class="gate-status-text" style="color:#059669;">ENTRY GRANTED</div><div class="gate-details">${message}</div>`;}
-            else if(type==='warn'){r.className='result-box show warn';r.innerHTML=`<div class="gate-big-icon">⚠️</div><div class="gate-status-text" style="color:#d97706;">ALREADY INSIDE</div><div class="gate-details">${message}</div>`;}
-            else{r.className='result-box show deny';r.innerHTML=`<div class="gate-big-icon">🔴</div><div class="gate-status-text" style="color:#dc2626;">ENTRY DENIED</div><div class="gate-details">${message}</div>`;}
+        function clearGateInput() {
+            setTimeout(() => {
+                const inp = document.getElementById('gateInput');
+                inp.value = '';
+                inp.className = '';
+            }, 1500);
         }
 
-        async function resetGate(ref){
-            if(!confirm('Reset gate entry for '+ref+'?\nMoves them back outside.'))return;
-            const b=bookings.find(x=>x.ref===ref);if(!b)return;
-            try{
-                await supabase.from('bookings').update({gate_entered:false,gate_time:null,status:'confirmed',updated_at:new Date().toISOString()}).eq('booking_reference',ref);
+        function flashInput(className) {
+            const inp = document.getElementById('gateInput');
+            inp.className = className;
+            setTimeout(() => { inp.className = ''; }, 1500);
+        }
+
+        function showGateResult(type, message) {
+            const result = document.getElementById('gateResult');
+            result.style.display = 'block';
+            
+            if (type === 'allow') {
+                result.className = 'result-box show allow';
+                result.innerHTML = `
+                    <div class="gate-big-icon">🟢</div>
+                    <div class="gate-status-text" style="color:#059669;">ENTRY GRANTED</div>
+                    <div class="gate-details">${message}</div>
+                `;
+            } else if (type === 'warn') {
+                result.className = 'result-box show warn';
+                result.innerHTML = `
+                    <div class="gate-big-icon">⚠️</div>
+                    <div class="gate-status-text" style="color:#d97706;">ALREADY INSIDE</div>
+                    <div class="gate-details">${message}</div>
+                `;
+            } else {
+                result.className = 'result-box show deny';
+                result.innerHTML = `
+                    <div class="gate-big-icon">🔴</div>
+                    <div class="gate-status-text" style="color:#dc2626;">ENTRY DENIED</div>
+                    <div class="gate-details">${message}</div>
+                `;
+            }
+        }
+
+        // ==================== RESET GATE ENTRY ====================
+        async function resetGate(ref) {
+            if (!confirm('Reset gate entry for ' + ref + '?\nMoves them back outside.')) return;
+            
+            const booking = bookings.find(x => x.ref === ref);
+            if (!booking) return;
+            
+            console.log('🔄 Resetting gate entry for:', ref);
+            
+            try {
+                const { data, error } = await supabase
+                    .from('bookings')
+                    .update({
+                        gate_entered: false,
+                        gate_time: null,
+                        status: 'confirmed'
+                    })
+                    .eq('booking_reference', ref)
+                    .select();
+                    
+                if (error) {
+                    console.error('❌ Reset error:', error.message);
+                    throw error;
+                }
+                
+                console.log('✅ Gate reset in Supabase:', ref, data);
                 setOnline();
-            }catch(err){setOffline();}
-            b.gate_entered=false;b.gate_time=null;b.status='confirmed';
-            localStorage.setItem('chingende_bookings',JSON.stringify(bookings));
+                
+            } catch(err) {
+                setOffline();
+                console.error('❌ Reset failed:', err.message);
+            }
+            
+            // Update local state
+            booking.gate_entered = false;
+            booking.gate_time = null;
+            booking.status = 'confirmed';
+            localStorage.setItem('chingende_bookings', JSON.stringify(bookings));
             refreshAll();
         }
 
-        function generateQRUrl(ref,name,ticket){return `https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${encodeURIComponent(JSON.stringify({ref,name,ticket,event:'CHINGENDE',date:'2026-10-10'}))}&choe=UTF-8`;}
-        async function sendTicketEmail(ref){
-            const b=bookings.find(x=>x.ref===ref);if(!b||!b.email||b.email==='N/A'){alert('No email!');return;}
-            try{await emailjs.send('service_rqxvm4u','template_t85ouum',{to_name:b.name,to_email:b.email,reference:b.ref,phone:b.phone,ticket_type:b.ticket,quantity:b.qty.toString(),total:b.total.toLocaleString(),qr_code:generateQRUrl(b.ref,b.name,b.ticket)});b.email_sent=true;await supabase.from('bookings').update({email_sent:true}).eq('booking_reference',ref);alert('✅ Email sent!');}catch(err){alert('❌ Failed: '+err.message);}refreshAll();}
-        
-        function showTicket(ref){
-            const b=bookings.find(x=>x.ref===ref);if(!b)return;
-            document.getElementById('ticketContent').innerHTML=`<h3>🎫 Ticket - ${b.ref}</h3><div class="ticket-preview" id="ticketToDownload"><div class="ticket-header"><h2>🫘 CHING'ENDE</h2><p style="color:#6b7280;font-size:0.85rem;">Album Launch • Mansango</p><p style="font-weight:600;font-size:0.9rem;">Oct 10, 2026 • 8PM</p></div><div class="ticket-body">${['Reference','Name','Phone','Ticket','Qty','Total'].map((l,i)=>`<div class="ticket-field"><div class="lbl">${l}</div><div class="val" style="${i===0?'font-family:JetBrains Mono,monospace;color:#059669;font-size:0.8rem;':''}${i===5?'color:#059669;font-weight:700;':''}">${[b.ref,b.name,b.phone,b.ticket,b.qty,'KSH '+b.total.toLocaleString()][i]}</div></div>`).join('')}</div><div class="qr-container" id="qrContainer"></div>${b.gate_entered?`<div style="background:#d1fae5;padding:8px;border-radius:8px;margin-top:10px;text-align:center;font-weight:600;color:#065f46;">🟢 INSIDE - ${new Date(b.gate_time).toLocaleTimeString()}</div>`:`<div style="background:#fee2e2;padding:8px;border-radius:8px;margin-top:10px;text-align:center;font-weight:600;color:#991b1b;">🔴 NOT ENTERED</div>`}</div><div style="text-align:center;margin-top:1rem;"><button class="btn-download" id="modalDownloadBtn">📥 Download</button><button class="btn-download" id="modalEmailBtn" style="background:#8b5cf6;">📧 Email</button></div>`;
-            document.getElementById('ticketModal').classList.add('show');
-            setTimeout(()=>{const qc=document.getElementById('qrContainer');if(qc){qc.innerHTML='';new QRCode(qc,{text:JSON.stringify({ref:b.ref,name:b.name,phone:b.phone,ticket:b.ticket}),width:100,height:100,colorDark:'#059669',colorLight:'#ffffff'});}},200);
-            document.getElementById('modalDownloadBtn').addEventListener('click',()=>downloadTicketImage(ref));
-            document.getElementById('modalEmailBtn').addEventListener('click',async()=>{await sendTicketEmail(ref);document.getElementById('ticketModal').classList.remove('show');});
+        // ==================== ADD NEW BOOKING ====================
+        document.getElementById('saveBookingBtn').addEventListener('click', async function() {
+            const name = document.getElementById('addName').value.trim();
+            const phone = document.getElementById('addPhone').value.trim();
+            const email = document.getElementById('addEmail').value.trim();
+            
+            if (!name || !phone || !email) {
+                alert('Please fill in all required fields!');
+                return;
+            }
+            
+            const ticket = document.getElementById('addTicket').value;
+            const qty = parseInt(document.getElementById('addQty').value) || 1;
+            const status = document.getElementById('addStatus').value;
+            const prices = { Regular: 500, VIP: 1000, VVIP: 2000 };
+            const price = prices[ticket];
+            const total = price * qty;
+            const ref = 'CHG-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 5).toUpperCase();
+            
+            console.log('➕ Adding new booking:', ref);
+            
+            // Save to Supabase
+            try {
+                const { data, error } = await supabase
+                    .from('bookings')
+                    .insert([{
+                        booking_reference: ref,
+                        full_name: name,
+                        phone: phone,
+                        email: email,
+                        ticket_type: ticket,
+                        quantity: qty,
+                        price_per_ticket: price,
+                        total_amount: total,
+                        status: status,
+                        gate_entered: false,
+                        email_sent: false,
+                        created_at: new Date().toISOString()
+                    }])
+                    .select();
+                    
+                if (error) {
+                    console.error('❌ Insert error:', error.message);
+                    throw error;
+                }
+                
+                console.log('✅ Saved to Supabase:', data);
+                setOnline();
+                
+            } catch(err) {
+                setOffline();
+                console.error('❌ Save failed:', err.message);
+            }
+            
+            // Add to local array
+            const newBooking = {
+                ref, name, phone, email, ticket, qty, price, total, status,
+                gate_entered: false, gate_time: null, email_sent: false,
+                date: new Date().toISOString()
+            };
+            
+            bookings.unshift(newBooking);
+            localStorage.setItem('chingende_bookings', JSON.stringify(bookings));
+            
+            // Send email
+            try {
+                await emailjs.send('service_rqxvm4u', 'template_t85ouum', {
+                    to_name: name,
+                    to_email: email,
+                    reference: ref,
+                    phone: phone,
+                    ticket_type: ticket,
+                    quantity: qty.toString(),
+                    total: total.toLocaleString(),
+                    qr_code: generateQRUrl(ref, name, ticket)
+                });
+                newBooking.email_sent = true;
+                console.log('✅ Email sent to:', email);
+            } catch(err) {
+                console.error('❌ Email failed:', err.message);
+            }
+            
+            // Clear form
+            document.getElementById('addName').value = '';
+            document.getElementById('addPhone').value = '';
+            document.getElementById('addEmail').value = '';
+            document.getElementById('addQty').value = '1';
+            
+            alert('✅ Booking saved! Reference: ' + ref);
+            refreshAll();
+        });
+
+        // ==================== TICKET & EMAIL FUNCTIONS ====================
+        function generateQRUrl(ref, name, ticket) {
+            return `https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${encodeURIComponent(JSON.stringify({
+                ref, name, ticket, event: 'CHINGENDE', date: '2026-10-10'
+            }))}&choe=UTF-8`;
         }
-        async function downloadTicketImage(ref){const el=document.getElementById('ticketToDownload');if(!el)return;try{const c=await html2canvas(el,{scale:2,backgroundColor:'#ffffff',logging:false});const a=document.createElement('a');a.download='CHINGENDE-Ticket-'+(ref||'')+'.png';a.href=c.toDataURL('image/png');document.body.appendChild(a);a.click();document.body.removeChild(a);}catch(e){}}
+        
+        async function sendTicketEmail(ref) {
+            const booking = bookings.find(x => x.ref === ref);
+            if (!booking || !booking.email || booking.email === 'N/A') {
+                alert('No email address available!');
+                return;
+            }
+            
+            try {
+                await emailjs.send('service_rqxvm4u', 'template_t85ouum', {
+                    to_name: booking.name,
+                    to_email: booking.email,
+                    reference: booking.ref,
+                    phone: booking.phone,
+                    ticket_type: booking.ticket,
+                    quantity: booking.qty.toString(),
+                    total: booking.total.toLocaleString(),
+                    qr_code: generateQRUrl(booking.ref, booking.name, booking.ticket)
+                });
+                booking.email_sent = true;
+                console.log('✅ Email sent to:', booking.email);
+                alert('✅ Email sent successfully!');
+            } catch(err) {
+                console.error('❌ Email failed:', err.message);
+                alert('❌ Failed to send email: ' + err.message);
+            }
+            refreshAll();
+        }
+        
+        function showTicket(ref) {
+            const booking = bookings.find(x => x.ref === ref);
+            if (!booking) return;
+            
+            document.getElementById('ticketContent').innerHTML = `
+                <h3>🎫 Ticket - ${booking.ref}</h3>
+                <div class="ticket-preview" id="ticketToDownload">
+                    <div class="ticket-header">
+                        <h2>🫘 CHING'ENDE</h2>
+                        <p style="color:#6b7280;font-size:0.85rem;">Album Launch • Mansango</p>
+                        <p style="font-weight:600;font-size:0.9rem;">Oct 10, 2026 • 8PM</p>
+                    </div>
+                    <div class="ticket-body">
+                        ${['Reference', 'Name', 'Phone', 'Ticket', 'Qty', 'Total'].map((label, i) => `
+                            <div class="ticket-field">
+                                <div class="lbl">${label}</div>
+                                <div class="val" style="${i === 0 ? 'font-family:JetBrains Mono,monospace;color:#059669;font-size:0.8rem;' : ''}${i === 5 ? 'color:#059669;font-weight:700;' : ''}">
+                                    ${[booking.ref, booking.name, booking.phone, booking.ticket, booking.qty, 'KSH ' + booking.total.toLocaleString()][i]}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="qr-container" id="qrContainer"></div>
+                    ${booking.gate_entered 
+                        ? `<div style="background:#d1fae5;padding:8px;border-radius:8px;margin-top:10px;text-align:center;font-weight:600;color:#065f46;">🟢 INSIDE - ${new Date(booking.gate_time).toLocaleTimeString()}</div>`
+                        : `<div style="background:#fee2e2;padding:8px;border-radius:8px;margin-top:10px;text-align:center;font-weight:600;color:#991b1b;">🔴 NOT ENTERED</div>`
+                    }
+                </div>
+                <div style="text-align:center;margin-top:1rem;">
+                    <button class="btn-download" id="modalDownloadBtn">📥 Download</button>
+                    <button class="btn-download" id="modalEmailBtn" style="background:#8b5cf6;">📧 Email</button>
+                </div>
+            `;
+            
+            document.getElementById('ticketModal').classList.add('show');
+            
+            setTimeout(() => {
+                const qrContainer = document.getElementById('qrContainer');
+                if (qrContainer) {
+                    qrContainer.innerHTML = '';
+                    new QRCode(qrContainer, {
+                        text: JSON.stringify({ ref: booking.ref, name: booking.name, phone: booking.phone, ticket: booking.ticket }),
+                        width: 100,
+                        height: 100,
+                        colorDark: '#059669',
+                        colorLight: '#ffffff'
+                    });
+                }
+            }, 200);
+            
+            document.getElementById('modalDownloadBtn').addEventListener('click', () => downloadTicketImage(ref));
+            document.getElementById('modalEmailBtn').addEventListener('click', async () => {
+                await sendTicketEmail(ref);
+                document.getElementById('ticketModal').classList.remove('show');
+            });
+        }
+        
+        async function downloadTicketImage(ref) {
+            const el = document.getElementById('ticketToDownload');
+            if (!el) return;
+            try {
+                const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', logging: false });
+                const a = document.createElement('a');
+                a.download = 'CHINGENDE-Ticket-' + (ref || '') + '.png';
+                a.href = canvas.toDataURL('image/png');
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } catch(e) {
+                console.error('Download error:', e);
+            }
+        }
 
-        document.getElementById('saveBookingBtn').addEventListener('click',async function(){
-            const name=document.getElementById('addName').value.trim(),phone=document.getElementById('addPhone').value.trim(),email=document.getElementById('addEmail').value.trim();
-            if(!name||!phone||!email){alert('Fill all fields!');return;}
-            const ticket=document.getElementById('addTicket').value,qty=parseInt(document.getElementById('addQty').value)||1,status=document.getElementById('addStatus').value;
-            const prices={Regular:500,VIP:1000,VVIP:2000},price=prices[ticket],total=price*qty,ref='CHG-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).substring(2,5).toUpperCase();
-            try{await supabase.from('bookings').insert([{booking_reference:ref,full_name:name,phone:phone,email:email,ticket_type:ticket,quantity:qty,price_per_ticket:price,total_amount:total,status:status}]);setOnline();}catch(err){setOffline();}
-            const nb={ref,name,phone,email,ticket,qty,price,total,status,gate_entered:false,gate_time:null,email_sent:false,date:new Date().toISOString()};
-            bookings.unshift(nb);localStorage.setItem('chingende_bookings',JSON.stringify(bookings));
-            try{await emailjs.send('service_rqxvm4u','template_t85ouum',{to_name:name,to_email:email,reference:ref,phone:phone,ticket_type:ticket,quantity:qty.toString(),total:total.toLocaleString(),qr_code:generateQRUrl(ref,name,ticket)});nb.email_sent=true;await supabase.from('bookings').update({email_sent:true}).eq('booking_reference',ref);alert('✅ Saved & emailed! Ref: '+ref);}catch(err){alert('✅ Saved! Email failed. Ref: '+ref);}
-            document.getElementById('addName').value='';document.getElementById('addPhone').value='';document.getElementById('addEmail').value='';document.getElementById('addQty').value='1';refreshAll();
+        // ==================== ANNOUNCEMENTS ====================
+        function updateAnnounceCount() {
+            const count = bookings.filter(b => b.email && b.email !== 'N/A' && b.status !== 'cancelled').length;
+            document.getElementById('announceCount').textContent = count;
+        }
+        
+        document.getElementById('sendAnnounceBtn').addEventListener('click', async function() {
+            const subject = document.getElementById('announceSubject').value.trim() || 'CHINGENDE Update';
+            const message = document.getElementById('announceMessage').value.trim();
+            
+            if (!message) {
+                alert('Please type a message!');
+                return;
+            }
+            
+            const targets = bookings.filter(b => b.email && b.email !== 'N/A' && b.status !== 'cancelled');
+            
+            if (targets.length === 0) {
+                alert('No recipients found!');
+                return;
+            }
+            
+            if (!confirm(`Send announcement to ${targets.length} recipients?`)) return;
+            
+            document.getElementById('announceProgress').style.display = 'block';
+            document.getElementById('announceTotal').textContent = targets.length;
+            
+            let sent = 0;
+            for (const booking of targets) {
+                try {
+                    await emailjs.send('service_rqxvm4u', 'template_oo3zgte', {
+                        to_name: booking.name,
+                        to_email: booking.email,
+                        subject: subject,
+                        message: message
+                    });
+                    sent++;
+                } catch(e) {
+                    console.error('Failed for', booking.email, e);
+                }
+                
+                document.getElementById('announceSent').textContent = sent;
+                document.getElementById('announceBar').style.width = (sent / targets.length * 100) + '%';
+                await new Promise(r => setTimeout(r, 400));
+            }
+            
+            alert(`✅ Sent ${sent} out of ${targets.length} emails!`);
+            setTimeout(() => {
+                document.getElementById('announceProgress').style.display = 'none';
+            }, 2000);
         });
 
-        function updateAnnounceCount(){document.getElementById('announceCount').textContent=bookings.filter(b=>b.email&&b.email!=='N/A'&&b.status!=='cancelled').length;}
-        document.getElementById('sendAnnounceBtn').addEventListener('click',async function(){
-            const subject=document.getElementById('announceSubject').value.trim()||'CHINGENDE Update',message=document.getElementById('announceMessage').value.trim();
-            if(!message){alert('Type a message!');return;}const targets=bookings.filter(b=>b.email&&b.email!=='N/A'&&b.status!=='cancelled');
-            if(targets.length===0){alert('No recipients!');return;}if(!confirm(`Send to ${targets.length}?`))return;
-            document.getElementById('announceProgress').style.display='block';document.getElementById('announceTotal').textContent=targets.length;
-            let sent=0;for(const b of targets){try{await emailjs.send('service_rqxvm4u','template_oo3zgte',{to_name:b.name,to_email:b.email,subject:subject,message:message});sent++;}catch(e){}document.getElementById('announceSent').textContent=sent;document.getElementById('announceBar').style.width=(sent/targets.length*100)+'%';await new Promise(r=>setTimeout(r,400));}
-            alert(`✅ ${sent}/${targets.length} sent!`);setTimeout(()=>document.getElementById('announceProgress').style.display='none',2000);
+        // ==================== EXPORT ====================
+        document.getElementById('exportCSVBtn').addEventListener('click', () => {
+            if (!bookings.length) return;
+            const csv = 'Reference,Name,Phone,Email,Ticket,Qty,Price,Total,Status,Location,GateTime,EmailSent,Date\n' + 
+                bookings.map(b => `"${b.ref}","${b.name}","${b.phone}","${b.email}","${b.ticket}",${b.qty},${b.price},${b.total},"${b.status}","${b.gate_entered ? 'INSIDE' : 'OUTSIDE'}","${b.gate_time || ''}","${b.email_sent}","${b.date}"`).join('\n');
+            downloadBlob(csv, 'chingende-bookings.csv');
+        });
+        
+        document.getElementById('exportJSONBtn').addEventListener('click', () => {
+            if (!bookings.length) return;
+            downloadBlob(JSON.stringify(bookings, null, 2), 'chingende-bookings.json');
+        });
+        
+        function downloadBlob(content, filename) {
+            const blob = new Blob([content], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // ==================== MODAL ====================
+        document.getElementById('closeTicketModal').addEventListener('click', () => {
+            document.getElementById('ticketModal').classList.remove('show');
+        });
+        
+        document.getElementById('ticketModal').addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('show');
         });
 
-        document.getElementById('exportCSVBtn').addEventListener('click',()=>{if(!bookings.length)return;downloadBlob('Reference,Name,Phone,Email,Ticket,Qty,Price,Total,Status,Location,GateTime,EmailSent,Date\n'+bookings.map(b=>`"${b.ref}","${b.name}","${b.phone}","${b.email}","${b.ticket}",${b.qty},${b.price},${b.total},"${b.status}","${b.gate_entered?'INSIDE':'OUTSIDE'}","${b.gate_time||''}","${b.email_sent}","${b.date}"`).join('\n'),'chingende-bookings.csv');});
-        document.getElementById('exportJSONBtn').addEventListener('click',()=>{if(!bookings.length)return;downloadBlob(JSON.stringify(bookings,null,2),'chingende-bookings.json');});
-        function downloadBlob(c,f){const b=new Blob([c],{type:'text/plain'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=f;document.body.appendChild(a);a.click();document.body.removeChild(a);}
+        // ==================== LOGIN/LOGOUT ====================
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            if (document.getElementById('adminPassword').value === 'chingende2026') {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.add('show');
+                await loadData();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        });
+        
+        document.getElementById('adminPassword').addEventListener('keypress', e => {
+            if (e.key === 'Enter') document.getElementById('loginBtn').click();
+        });
+        
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('mainApp').classList.remove('show');
+            stopGateScanner();
+        });
+        
+        document.getElementById('refreshBtn').addEventListener('click', loadData);
 
-        document.getElementById('closeTicketModal').addEventListener('click',()=>document.getElementById('ticketModal').classList.remove('show'));
-        document.getElementById('ticketModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
+        // ==================== TAB SWITCHING ====================
+        document.querySelectorAll('.tabs button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('on'));
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                
+                this.classList.add('on');
+                document.getElementById('panel-' + this.getAttribute('data-tab')).classList.add('active');
+                
+                if (this.getAttribute('data-tab') === 'dashboard') refreshDashboard();
+                if (this.getAttribute('data-tab') === 'bookings') renderBookings();
+                if (this.getAttribute('data-tab') === 'announce') updateAnnounceCount();
+                if (this.getAttribute('data-tab') === 'gate') {
+                    stopGateScanner();
+                    document.getElementById('gateCameraContainer').style.display = 'none';
+                    document.getElementById('gateResult').style.display = 'none';
+                }
+            });
+        });
 
-        document.getElementById('loginBtn').addEventListener('click',async()=>{if(document.getElementById('adminPassword').value==='chingende2026'){document.getElementById('loginScreen').classList.add('hidden');document.getElementById('mainApp').classList.add('show');await loadData();}else{document.getElementById('loginError').style.display='block';}});
-        document.getElementById('adminPassword').addEventListener('keypress',e=>{if(e.key==='Enter')document.getElementById('loginBtn').click();});
-        document.getElementById('logoutBtn').addEventListener('click',()=>{document.getElementById('loginScreen').classList.remove('hidden');document.getElementById('mainApp').classList.remove('show');stopGateScanner();});
-        document.getElementById('refreshBtn').addEventListener('click',loadData);
-        document.querySelectorAll('.tabs button').forEach(btn=>{btn.addEventListener('click',function(){document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('on'));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));this.classList.add('on');document.getElementById('panel-'+this.getAttribute('data-tab')).classList.add('active');if(this.getAttribute('data-tab')==='dashboard')refreshDashboard();if(this.getAttribute('data-tab')==='bookings')renderBookings();if(this.getAttribute('data-tab')==='announce')updateAnnounceCount();if(this.getAttribute('data-tab')==='gate'){stopGateScanner();document.getElementById('gateCameraContainer').style.display='none';document.getElementById('gateResult').style.display='none';}});});
-        document.getElementById('searchInput').addEventListener('input',renderBookings);
-        document.getElementById('statusFilter').addEventListener('change',renderBookings);
+        // ==================== SEARCH & FILTER ====================
+        document.getElementById('searchInput').addEventListener('input', renderBookings);
+        document.getElementById('statusFilter').addEventListener('change', renderBookings);
 
-        console.log('🫘 CHING\'ENDE Admin - Gate Entry saves to Supabase!');
+        console.log('🫘 CHING\'ENDE Admin Dashboard - Ready!');
+        console.log('📋 Gate entries save to Supabase automatically');
     </script>
 </body>
 </html>
